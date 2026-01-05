@@ -1,0 +1,11 @@
+[package]
+name = "todoapp"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.100"
+gpui = "0.2.2"
+gpui-component = { version = "0.5.0", features = ["tree-sitter-languages"] }
+gpui-component-assets = "0.5.0"
+uuid = "1.19.0"
