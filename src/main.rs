@@ -5,6 +5,7 @@ use gpui_component::{
     button::*,
     checkbox::Checkbox,
     input::{Input, InputEvent, InputState},
+    resizable::h_resizable,
     scroll::ScrollableElement,
     *,
 };
@@ -38,9 +39,11 @@ impl Render for TodoItem {
             .gap_2()
             .p_2()
             .rounded_sm()
+            .border_1()
+            .border_color(cx.theme().border)
             .flex_grow()
             .m_2()
-            .bg(cx.theme().accent)
+            // .bg(cx.theme().accent)
             .child(
                 Checkbox::new(self.id.clone())
                     .checked(self.completed)
@@ -142,7 +145,7 @@ impl TodoApp {
                     cx.notify();
                 }
                 InputEvent::PressEnter { secondary } => {
-                    if !secondary {
+                    if *secondary {
                         // Add item
                         this.todo_list.update(cx, |todo_list, c| {
                             todo_list.add_item(this.editing_text.clone(), c);
@@ -185,41 +188,46 @@ impl Render for TodoApp {
             .child(
                 h_flex()
                     .size_full()
-                    .max_h(Pixels::from(window.bounds().bottom().to_f64() - 40.0))
+                    .max_h(Pixels::from(window.bounds().bottom().to_f64() - 60.0))
                     .p_2()
                     .justify_between()
                     .child(
-                        Input::new(&self.input_state)
-                            .content_stretch()
-                            .size_full()
-                            .overflow_hidden()
-                            .m_2()
-                            .suffix(Button::new("add").icon(IconName::ArrowRight).on_click(
-                                cx.listener(|this, _, window, cx| {
-                                    this.todo_list.update(cx, |todo_list, cx| {
-                                        todo_list.add_item(this.editing_text.clone(), cx);
-                                        cx.notify();
-                                    });
-                                    this.editing_text = SharedString::new("");
-                                    this.input_state.update(cx, |input_state, cx| {
-                                        input_state.set_value("", window, cx);
-                                    });
-                                    cx.notify();
-                                }),
-                            )),
-                    )
-                    .child(
-                        v_flex()
-                            .overflow_y_scrollbar()
-                            .h_full()
-                            .max_h_full()
-                            .relative()
-                            .overflow_hidden()
-                            .flex_grow()
-                            .gap_1_2()
-                            .m_2()
-                            .p_2()
-                            .children(self.todo_list.read(cx).items.clone()),
+                        h_resizable("all")
+                            .child(
+                                Input::new(&self.input_state)
+                                    .content_stretch()
+                                    .size_full()
+                                    .overflow_hidden()
+                                    .m_2()
+                                    .suffix(Button::new("add").icon(IconName::ArrowRight).on_click(
+                                        cx.listener(|this, _, window, cx| {
+                                            this.todo_list.update(cx, |todo_list, cx| {
+                                                todo_list.add_item(this.editing_text.clone(), cx);
+                                                cx.notify();
+                                            });
+                                            this.editing_text = SharedString::new("");
+                                            this.input_state.update(cx, |input_state, cx| {
+                                                input_state.set_value("", window, cx);
+                                            });
+                                            cx.notify();
+                                        }),
+                                    ))
+                                    .into_any_element(),
+                            )
+                            .child(
+                                v_flex()
+                                    .overflow_y_scrollbar()
+                                    .h_full()
+                                    .max_h_full()
+                                    .relative()
+                                    .overflow_hidden()
+                                    .flex_grow()
+                                    .gap_1_2()
+                                    .m_2()
+                                    .p_2()
+                                    .children(self.todo_list.read(cx).items.clone())
+                                    .into_any_element(),
+                            ),
                     ),
             )
     }
